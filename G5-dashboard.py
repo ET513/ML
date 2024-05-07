@@ -716,7 +716,7 @@ custom_colors = {
     'GMM1': 'dodgerblue',
     'GMM2': 'skyblue',
     'DBSCAN1': 'navajowhite',
-    'DBSCAN2': 'antiquewhite'
+    'DBSCAN2': 'antiquewhite',
     'KMedoidsMin1': 'mediumseagreen',
     'KMedoidsMin2': 'lightgreen'
 }
