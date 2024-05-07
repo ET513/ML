@@ -700,7 +700,7 @@ scores = {
     'GMM1': gmm1_silhouette,
     'GMM2': gmm2_silhouette,
     'DBSCAN1': dbscan1_silhouette,
-    'DBSCAN2': dbscan2_silhouette，
+    'DBSCAN2': dbscan2_silhouette,
     'KMedoidsMin1': kmedoidsmin1_silhouette,
     'KMedoidsMin2': kmedoidsmin2_silhouette
 }
