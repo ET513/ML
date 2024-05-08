@@ -6,3 +6,4 @@ plotly
 numpy
 minisom
 scikit-learn-extra
+pickle
