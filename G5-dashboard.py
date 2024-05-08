@@ -412,6 +412,10 @@ st.write("Gaussian Mixture Model 2 (Dataframe without Outliers):", gmm2_silhouet
 
 # DBSCAN
 
+st.title("   ")
+st.title("   ")
+st.title("DBSCAN")
+
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -419,11 +423,6 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.cluster import DBSCAN
 from sklearn.metrics import silhouette_score
 from sklearn.decomposition import PCA
-import pickle
-
-st.title("   ")
-st.title("   ")
-st.title("DBSCAN")
 
 # Load data
 df_outliers = pd.read_csv("earthquake_data_outliers.csv")
@@ -463,32 +462,16 @@ def grid_search_dbscan(data_scaled):
 
     return best_eps, best_min_samples, best_score
 
-# Function to perform DBSCAN clustering and store the results
-def compute_and_store_dbscan_results(data_scaled, df_clusters, filename):
+# Function to perform DBSCAN clustering and visualization
+def visualize_dbscan_clusters(data_scaled, df_clusters, num_clusters, title):
     eps, min_samples, silhouette_score = grid_search_dbscan(data_scaled)
+
     dbscan = DBSCAN(eps=eps, min_samples=min_samples)
     df_clusters['DBSCAN_Cluster'] = dbscan.fit_predict(data_scaled)
-    
-    # Store the DBSCAN results and silhouette score in a file
-    with open(filename, 'wb') as file:
-        pickle.dump((df_clusters, silhouette_score), file)
-    
-    return silhouette_score
 
-# Precompute and store DBSCAN results for clustering with outliers
-dbscan1_silhouette = compute_and_store_dbscan_results(minmax_data_scaled_1, df_outliers.copy(), 'dbscan_results_outliers.pkl')
-
-# Precompute and store DBSCAN results for clustering without outliers
-dbscan2_silhouette = compute_and_store_dbscan_results(minmax_data_scaled_2, df_no_outliers.copy(), 'dbscan_results_no_outliers.pkl')
-
-# Function to load and visualize precomputed DBSCAN results
-def load_and_visualize_dbscan_results(filename, title):
-    with open(filename, 'rb') as file:
-        df_clusters, silhouette_score = pickle.load(file)
-    
     pca = PCA(n_components=2)
-    data_pca = pca.fit_transform(df_clusters.drop(columns=['DBSCAN_Cluster']))
-    
+    data_pca = pca.fit_transform(data_scaled)
+
     fig, ax = plt.subplots(figsize=(10, 6))
     for cluster_num in set(df_clusters['DBSCAN_Cluster']):
         if cluster_num == -1:
@@ -497,7 +480,7 @@ def load_and_visualize_dbscan_results(filename, title):
         else:
             subset = data_pca[df_clusters['DBSCAN_Cluster'] == cluster_num]
             ax.scatter(subset[:, 0], subset[:, 1], label=f"Cluster {cluster_num}", alpha=0.6)
-    
+
     ax.set_title(title)
     ax.set_xlabel('PCA 1')
     ax.set_ylabel('PCA 2')
@@ -505,19 +488,20 @@ def load_and_visualize_dbscan_results(filename, title):
     ax.grid(True)
     plt.tight_layout()
     st.pyplot(fig)
-    
+
     return silhouette_score
 
 # Streamlit app
 st.title("   ")
 st.header("DBSCAN Clustering Visualization")
 
-# Load and visualize precomputed DBSCAN results
+# With outliers
 st.subheader('With Outliers')
-dbscan1_silhouette = load_and_visualize_dbscan_results('dbscan_results_outliers.pkl', 'DBSCAN Clustering (PCA Visualization & Dataframe with Outliers)')
+dbscan1_silhouette = visualize_dbscan_clusters(minmax_data_scaled_1, df_outliers.copy(), num_clusters=2, title='DBSCAN Clustering (PCA Visualization & Dataframe with Outliers)')
 
+# Without outliers
 st.subheader('Without Outliers')
-dbscan2_silhouette = load_and_visualize_dbscan_results('dbscan_results_no_outliers.pkl', 'DBSCAN Clustering (PCA Visualization & Dataframe without Outliers)')
+dbscan2_silhouette = visualize_dbscan_clusters(minmax_data_scaled_2, df_no_outliers.copy(), num_clusters=2, title='DBSCAN Clustering (PCA Visualization & Dataframe without Outliers)')
 
 # Print silhouette scores
 st.title("   ")
