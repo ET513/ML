@@ -608,14 +608,14 @@ st.title('  ')
 # st.sidebar.header('Input Data')
 
 # User Input for prediction
-magnitude = st.sidebar.text_input('Earthquake magnitude 1', value='')
-cdi = st.sidebar.text_input('Community Decimal Intensities', value='')
-mmi = st.sidebar.text_input('Modified Mercalli Intensity', value='')
+magnitude = st.sidebar.text_input('Earthquake magnitude (1.0 to 10.0)', value='')
+cdi = st.sidebar.text_input('Community Decimal Intensities(0 to 9)', value='')
+mmi = st.sidebar.text_input('Modified Mercalli Intensity (0 to 9)', value='')
 tsunami = st.sidebar.selectbox('Tsunami(0 = False, 1 = True)', [0, 1])
-sig = st.sidebar.text_input('Significant Event ID', value='')
-dmin = st.sidebar.text_input('Minimum Distance to Station ', value='')
-gap = st.sidebar.text_input('Azimuthal gap', value='')
-depth = st.sidebar.text_input('Depth of Rupture', value='')
+sig = st.sidebar.text_input('Significant Event ID (100 to 3000)', value='')
+dmin = st.sidebar.text_input('Minimum Distance to Station (1.0 to 20.0) ', value='')
+gap = st.sidebar.text_input('Azimuthal gap (1 to 250)', value='')
+depth = st.sidebar.text_input('Depth of Rupture (1 to 1000)', value='')
 
 if st.sidebar.button('Predict'):
     try:
