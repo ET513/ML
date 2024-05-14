@@ -150,414 +150,414 @@ st.plotly_chart(fig1)
 
 #------------------------------------------------------------------------------------#
 
-import streamlit as st
-import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.cluster import KMeans
-from sklearn.metrics import silhouette_score
-from sklearn.decomposition import PCA
+# import streamlit as st
+# import pandas as pd
+# import matplotlib.pyplot as plt
+# from sklearn.preprocessing import MinMaxScaler
+# from sklearn.cluster import KMeans
+# from sklearn.metrics import silhouette_score
+# from sklearn.decomposition import PCA
 
-# Load data
-df_outliers = pd.read_csv("earthquake_data_outliers.csv")
-df_no_outliers = pd.read_csv("earthquake_data_no_outliers.csv")
+# # Load data
+# df_outliers = pd.read_csv("earthquake_data_outliers.csv")
+# df_no_outliers = pd.read_csv("earthquake_data_no_outliers.csv")
 
-# Select features for clustering
-clustering_data_1 = df_outliers[["magnitude", "cdi", "mmi", "tsunami", "sig", "dmin", "gap", "depth"]]
-clustering_data_2 = df_no_outliers[["magnitude", "cdi", "mmi", "tsunami", "sig", "dmin", "gap", "depth"]]
+# # Select features for clustering
+# clustering_data_1 = df_outliers[["magnitude", "cdi", "mmi", "tsunami", "sig", "dmin", "gap", "depth"]]
+# clustering_data_2 = df_no_outliers[["magnitude", "cdi", "mmi", "tsunami", "sig", "dmin", "gap", "depth"]]
 
-# Scale the data
-scaler = MinMaxScaler()
-minmax_data_scaled_1 = scaler.fit_transform(clustering_data_1)
-minmax_data_scaled_2 = scaler.fit_transform(clustering_data_2)
-
-#------------------------------------------------------------------------------------#
-
-# K-Means
-st.title('  ')
-st.title('  ')
-st.title("K-Means")
-
-# Calculate WCSS for KMeans
-def calculate_wcss(data):
-    wcss = []
-    for i in range(1, 11):
-        kmeans = KMeans(n_clusters=i, init='k-means++', random_state=42)
-        kmeans.fit(data)
-        wcss.append(kmeans.inertia_)
-    return wcss
-
-# Plot Elbow Method for both datasets
-st.title("   ")
-st.header('Elbow Method (K-Means)')
-
-# Dataframe with Outliers
-st.subheader("Dataframe with Outliers")
-wcss_1 = calculate_wcss(minmax_data_scaled_1)
-fig1, ax1 = plt.subplots()
-ax1.plot(range(1, 11), wcss_1, marker='o', linestyle='--')
-ax1.set_title('Elbow Method (Dataframe with Outliers)')
-ax1.set_xlabel('Number of Clusters')
-ax1.set_ylabel('WCSS')
-ax1.grid(True)
-st.pyplot(fig1)
-
-# Dataframe without Outliers
-st.subheader("Dataframe without Outliers")
-wcss_2 = calculate_wcss(minmax_data_scaled_2)
-fig2, ax2 = plt.subplots()
-ax2.plot(range(1, 11), wcss_2, marker='o', linestyle='--')
-ax2.set_title('Elbow Method (Dataframe without Outliers)')
-ax2.set_xlabel('Number of Clusters')
-ax2.set_ylabel('WCSS')
-ax2.grid(True)
-st.pyplot(fig2)
-
-# Silhouette Method
-def calculate_silhouette(data):
-    silhouette_scores = []
-    for i in range(2, 11):
-        kmeans = KMeans(n_clusters=i, random_state=42)
-        kmeans.fit(data)
-        labels = kmeans.labels_
-        silhouette_avg = silhouette_score(data, labels)
-        silhouette_scores.append(silhouette_avg)
-    return silhouette_scores
-
-# Plot Silhouette Method for both datasets
-st.title("   ")
-st.header('Silhouette Method (K-Means)')
-
-# Dataframe with Outliers
-st.subheader("Dataframe with Outliers")
-silhouette_scores_1 = calculate_silhouette(minmax_data_scaled_1)
-fig3, ax3 = plt.subplots()
-ax3.plot(range(2, 11), silhouette_scores_1, marker='o', linestyle='--')
-ax3.set_title('Silhouette Method (Dataframe with Outliers)')
-ax3.set_xlabel('Number of Clusters')
-ax3.set_ylabel('Silhouette Score')
-ax3.grid(True)
-st.pyplot(fig3)
-
-# Dataframe without Outliers
-st.subheader("Dataframe without Outliers")
-silhouette_scores_2 = calculate_silhouette(minmax_data_scaled_2)
-fig4, ax4 = plt.subplots()
-ax4.plot(range(2, 11), silhouette_scores_2, marker='o', linestyle='--')
-ax4.set_title('Silhouette Method (Dataframe without Outliers)')
-ax4.set_xlabel('Number of Clusters')
-ax4.set_ylabel('Silhouette Score')
-ax4.grid(True)
-st.pyplot(fig4)
-
-# KMeans Clustering and Visualization
-def kmeans_clustering(data, title):
-    kmeans = KMeans(n_clusters=2, random_state=42)
-    labels = kmeans.fit_predict(data)
-
-    pca = PCA(n_components=2)
-    pca_result = pca.fit_transform(data)
-
-    fig, ax = plt.subplots(figsize=(10, 6))
-    for cluster_num in range(2):
-        subset = pca_result[labels == cluster_num]
-        ax.scatter(subset[:, 0], subset[:, 1], label=f"Cluster {cluster_num}", alpha=0.6)
-
-    ax.set_title(title)
-    ax.set_xlabel('PCA 1')
-    ax.set_ylabel('PCA 2')
-    ax.legend()
-    ax.grid(True)
-    st.pyplot(fig)
-
-# KMeans Clustering with Visualization for both datasets
-st.title("   ")
-st.header('K-means Clustering (PCA visualization)')
-
-# Dataframe with Outliers
-st.subheader("Dataframe with Outliers")
-kmeans_clustering(minmax_data_scaled_1, "K-means Clustering with 2 Clusters (PCA visualization) - Dataframe with Outliers")
-
-# Dataframe without Outliers
-st.subheader("Dataframe without Outliers")
-kmeans_clustering(minmax_data_scaled_2, "K-means Clustering with 2 Clusters (PCA visualization) - Dataframe without Outliers")
-
-# Calculate silhouette scores for KMeans clustering
-kmeans1 = KMeans(n_clusters=2, random_state=42)
-labels_1 = kmeans1.fit_predict(minmax_data_scaled_1)
-kmeans1_silhouette = silhouette_score(minmax_data_scaled_1, labels_1, metric='euclidean')
-
-kmeans2 = KMeans(n_clusters=2, random_state=42)
-labels_2 = kmeans2.fit_predict(minmax_data_scaled_2)
-kmeans2_silhouette = silhouette_score(minmax_data_scaled_2, labels_2, metric='euclidean')
-
-# Display silhouette scores
-st.title("   ")
-st.header('Silhouette Scores')
-st.write("KMeans1 (Dataframe with Outliers):", kmeans1_silhouette)
-st.write("KMeans2 (Dataframe without Outliers):", kmeans2_silhouette)
+# # Scale the data
+# scaler = MinMaxScaler()
+# minmax_data_scaled_1 = scaler.fit_transform(clustering_data_1)
+# minmax_data_scaled_2 = scaler.fit_transform(clustering_data_2)
 
 #------------------------------------------------------------------------------------#
 
-# GMM
+# # K-Means
+# st.title('  ')
+# st.title('  ')
+# st.title("K-Means")
 
-st.title("   ")
-st.title("   ")
-st.title("GMM")
+# # Calculate WCSS for KMeans
+# def calculate_wcss(data):
+#     wcss = []
+#     for i in range(1, 11):
+#         kmeans = KMeans(n_clusters=i, init='k-means++', random_state=42)
+#         kmeans.fit(data)
+#         wcss.append(kmeans.inertia_)
+#     return wcss
 
-import streamlit as st
-import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.mixture import GaussianMixture
-from sklearn.metrics import silhouette_score
-from sklearn.decomposition import PCA
+# # # Plot Elbow Method for both datasets
+# # st.title("   ")
+# # st.header('Elbow Method (K-Means)')
 
-# Load data
-df_outliers = pd.read_csv("earthquake_data_outliers.csv")
-df_no_outliers = pd.read_csv("earthquake_data_no_outliers.csv")
+# # # Dataframe with Outliers
+# # st.subheader("Dataframe with Outliers")
+# # wcss_1 = calculate_wcss(minmax_data_scaled_1)
+# # fig1, ax1 = plt.subplots()
+# # ax1.plot(range(1, 11), wcss_1, marker='o', linestyle='--')
+# # ax1.set_title('Elbow Method (Dataframe with Outliers)')
+# # ax1.set_xlabel('Number of Clusters')
+# # ax1.set_ylabel('WCSS')
+# # ax1.grid(True)
+# # st.pyplot(fig1)
 
-# Select features for clustering
-clustering_data_1 = df_outliers[["magnitude", "cdi", "mmi", "tsunami", "sig", "dmin", "gap", "depth"]]
-clustering_data_2 = df_no_outliers[["magnitude", "cdi", "mmi", "tsunami", "sig", "dmin", "gap", "depth"]]
+# # # Dataframe without Outliers
+# # st.subheader("Dataframe without Outliers")
+# # wcss_2 = calculate_wcss(minmax_data_scaled_2)
+# # fig2, ax2 = plt.subplots()
+# # ax2.plot(range(1, 11), wcss_2, marker='o', linestyle='--')
+# # ax2.set_title('Elbow Method (Dataframe without Outliers)')
+# # ax2.set_xlabel('Number of Clusters')
+# # ax2.set_ylabel('WCSS')
+# # ax2.grid(True)
+# # st.pyplot(fig2)
 
-# Scale the data
-scaler = MinMaxScaler()
-minmax_data_scaled_1 = scaler.fit_transform(clustering_data_1)
-minmax_data_scaled_2 = scaler.fit_transform(clustering_data_2)
+# # # Silhouette Method
+# # def calculate_silhouette(data):
+# #     silhouette_scores = []
+# #     for i in range(2, 11):
+# #         kmeans = KMeans(n_clusters=i, random_state=42)
+# #         kmeans.fit(data)
+# #         labels = kmeans.labels_
+# #         silhouette_avg = silhouette_score(data, labels)
+# #         silhouette_scores.append(silhouette_avg)
+# #     return silhouette_scores
 
-# Calculate BIC scores for Gaussian Mixture Model
-def calculate_bic(data):
-    bic_scores = []
-    for n_components in range(2, 11):
-        gmm = GaussianMixture(n_components=n_components, random_state=42)
-        gmm.fit(data)
-        bic_scores.append(gmm.bic(data))
-    return bic_scores
+# # # Plot Silhouette Method for both datasets
+# # st.title("   ")
+# # st.header('Silhouette Method (K-Means)')
 
-# Plot BIC scores for Gaussian Mixture Model
-st.title("   ")
-st.header('BIC Scores for Gaussian Mixture Model')
+# # # Dataframe with Outliers
+# # st.subheader("Dataframe with Outliers")
+# # silhouette_scores_1 = calculate_silhouette(minmax_data_scaled_1)
+# # fig3, ax3 = plt.subplots()
+# # ax3.plot(range(2, 11), silhouette_scores_1, marker='o', linestyle='--')
+# # ax3.set_title('Silhouette Method (Dataframe with Outliers)')
+# # ax3.set_xlabel('Number of Clusters')
+# # ax3.set_ylabel('Silhouette Score')
+# # ax3.grid(True)
+# # st.pyplot(fig3)
 
-# Dataframe with Outliers
-st.subheader("Dataframe with Outliers")
-bic_scores_1 = calculate_bic(minmax_data_scaled_1)
-fig1, ax1 = plt.subplots()
-ax1.plot(range(2, 11), bic_scores_1, marker='o')
-ax1.set_xlabel('Number of components')
-ax1.set_ylabel('BIC Score')
-ax1.set_title('BIC Scores (Dataframe with Outliers)')
-ax1.grid(True)
-st.pyplot(fig1)
+# # # Dataframe without Outliers
+# # st.subheader("Dataframe without Outliers")
+# # silhouette_scores_2 = calculate_silhouette(minmax_data_scaled_2)
+# # fig4, ax4 = plt.subplots()
+# # ax4.plot(range(2, 11), silhouette_scores_2, marker='o', linestyle='--')
+# # ax4.set_title('Silhouette Method (Dataframe without Outliers)')
+# # ax4.set_xlabel('Number of Clusters')
+# # ax4.set_ylabel('Silhouette Score')
+# # ax4.grid(True)
+# # st.pyplot(fig4)
 
-# Dataframe without Outliers
-st.subheader("Dataframe without Outliers")
-bic_scores_2 = calculate_bic(minmax_data_scaled_2)
-fig2, ax2 = plt.subplots()
-ax2.plot(range(2, 11), bic_scores_2, marker='o')
-ax2.set_xlabel('Number of components')
-ax2.set_ylabel('BIC Score')
-ax2.set_title('BIC Scores (Dataframe without Outliers)')
-ax2.grid(True)
-st.pyplot(fig2)
+# # KMeans Clustering and Visualization
+# def kmeans_clustering(data, title):
+#     kmeans = KMeans(n_clusters=2, random_state=42)
+#     labels = kmeans.fit_predict(data)
 
-# Perform Gaussian Mixture Model clustering
-def gmm_clustering(data, title):
-    gmm = GaussianMixture(n_components=2, random_state=42)
-    labels = gmm.fit_predict(data)
+#     pca = PCA(n_components=2)
+#     pca_result = pca.fit_transform(data)
 
-    pca = PCA(n_components=2)
-    pca_result = pca.fit_transform(data)
+#     fig, ax = plt.subplots(figsize=(10, 6))
+#     for cluster_num in range(2):
+#         subset = pca_result[labels == cluster_num]
+#         ax.scatter(subset[:, 0], subset[:, 1], label=f"Cluster {cluster_num}", alpha=0.6)
 
-    fig, ax = plt.subplots(figsize=(10, 6))
-    for cluster_num in range(2):
-        subset = pca_result[labels == cluster_num]
-        ax.scatter(subset[:, 0], subset[:, 1], label=f"Cluster {cluster_num}", alpha=0.6)
+#     ax.set_title(title)
+#     ax.set_xlabel('PCA 1')
+#     ax.set_ylabel('PCA 2')
+#     ax.legend()
+#     ax.grid(True)
+#     st.pyplot(fig)
 
-    ax.set_title(title)
-    ax.set_xlabel('PCA 1')
-    ax.set_ylabel('PCA 2')
-    ax.legend()
-    ax.grid(True)
-    st.pyplot(fig)
+# # KMeans Clustering with Visualization for both datasets
+# st.title("   ")
+# st.header('K-means Clustering (PCA visualization)')
 
-# Gaussian Mixture Model Clustering with Visualization for both datasets
-st.title("   ")
-st.header('GMM Clustering')
+# # Dataframe with Outliers
+# st.subheader("Dataframe with Outliers")
+# kmeans_clustering(minmax_data_scaled_1, "K-means Clustering with 2 Clusters (PCA visualization) - Dataframe with Outliers")
 
-# Dataframe with Outliers
-st.subheader("Dataframe with Outliers")
-gmm_clustering(minmax_data_scaled_1, "Gaussian Mixture Model Clustering with 2 Components (PCA visualization) - Dataframe with Outliers")
+# # Dataframe without Outliers
+# st.subheader("Dataframe without Outliers")
+# kmeans_clustering(minmax_data_scaled_2, "K-means Clustering with 2 Clusters (PCA visualization) - Dataframe without Outliers")
 
-# Dataframe without Outliers
-st.subheader("Dataframe without Outliers")
-gmm_clustering(minmax_data_scaled_2, "Gaussian Mixture Model Clustering with 2 Components (PCA visualization) - Dataframe without Outliers")
+# # Calculate silhouette scores for KMeans clustering
+# kmeans1 = KMeans(n_clusters=2, random_state=42)
+# labels_1 = kmeans1.fit_predict(minmax_data_scaled_1)
+# kmeans1_silhouette = silhouette_score(minmax_data_scaled_1, labels_1, metric='euclidean')
 
-# Calculate silhouette scores for Gaussian Mixture Model clustering
-gmm1 = GaussianMixture(n_components=2, random_state=42)
-labels_1 = gmm1.fit_predict(minmax_data_scaled_1)
-gmm1_silhouette = silhouette_score(minmax_data_scaled_1, labels_1, metric='euclidean')
+# kmeans2 = KMeans(n_clusters=2, random_state=42)
+# labels_2 = kmeans2.fit_predict(minmax_data_scaled_2)
+# kmeans2_silhouette = silhouette_score(minmax_data_scaled_2, labels_2, metric='euclidean')
 
-gmm2 = GaussianMixture(n_components=2, random_state=42)
-labels_2 = gmm2.fit_predict(minmax_data_scaled_2)
-gmm2_silhouette = silhouette_score(minmax_data_scaled_2, labels_2, metric='euclidean')
+# # Display silhouette scores
+# st.title("   ")
+# st.header('Silhouette Scores')
+# st.write("KMeans1 (Dataframe with Outliers):", kmeans1_silhouette)
+# st.write("KMeans2 (Dataframe without Outliers):", kmeans2_silhouette)
 
-# Display silhouette scores
-st.title("   ")
-st.header('Silhouette Scores')
-st.write("Gaussian Mixture Model 1 (Dataframe with Outliers):", gmm1_silhouette)
-st.write("Gaussian Mixture Model 2 (Dataframe without Outliers):", gmm2_silhouette)
+# #------------------------------------------------------------------------------------#
 
-#------------------------------------------------------------------------------------#
+# # GMM
 
-# DBSCAN
+# st.title("   ")
+# st.title("   ")
+# st.title("GMM")
 
-st.title("   ")
-st.title("   ")
-st.title("DBSCAN")
+# import streamlit as st
+# import pandas as pd
+# import matplotlib.pyplot as plt
+# from sklearn.preprocessing import MinMaxScaler
+# from sklearn.mixture import GaussianMixture
+# from sklearn.metrics import silhouette_score
+# from sklearn.decomposition import PCA
 
-import streamlit as st
-import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.cluster import DBSCAN
-from sklearn.metrics import silhouette_score
-from sklearn.decomposition import PCA
+# # Load data
+# df_outliers = pd.read_csv("earthquake_data_outliers.csv")
+# df_no_outliers = pd.read_csv("earthquake_data_no_outliers.csv")
 
-# Load data
-df_outliers = pd.read_csv("earthquake_data_outliers.csv")
-df_no_outliers = pd.read_csv("earthquake_data_no_outliers.csv")
+# # Select features for clustering
+# clustering_data_1 = df_outliers[["magnitude", "cdi", "mmi", "tsunami", "sig", "dmin", "gap", "depth"]]
+# clustering_data_2 = df_no_outliers[["magnitude", "cdi", "mmi", "tsunami", "sig", "dmin", "gap", "depth"]]
 
-# Select features for clustering
-clustering_data_1 = df_outliers[["magnitude", "cdi", "mmi", "tsunami", "sig", "dmin", "gap", "depth"]]
-clustering_data_2 = df_no_outliers[["magnitude", "cdi", "mmi", "tsunami", "sig", "dmin", "gap", "depth"]]
+# # Scale the data
+# scaler = MinMaxScaler()
+# minmax_data_scaled_1 = scaler.fit_transform(clustering_data_1)
+# minmax_data_scaled_2 = scaler.fit_transform(clustering_data_2)
 
-# Scale the data
-scaler = MinMaxScaler()
-minmax_data_scaled_1 = scaler.fit_transform(clustering_data_1)
-minmax_data_scaled_2 = scaler.fit_transform(clustering_data_2)
+# # # Calculate BIC scores for Gaussian Mixture Model
+# # def calculate_bic(data):
+# #     bic_scores = []
+# #     for n_components in range(2, 11):
+# #         gmm = GaussianMixture(n_components=n_components, random_state=42)
+# #         gmm.fit(data)
+# #         bic_scores.append(gmm.bic(data))
+# #     return bic_scores
 
-# Function to perform grid search for DBSCAN parameters
-def grid_search_dbscan(data_scaled):
-    eps_values = [0.1, 0.3, 0.5, 0.7, 0.9]
-    min_samples_values = [5, 10, 15, 20]
+# # # Plot BIC scores for Gaussian Mixture Model
+# # st.title("   ")
+# # st.header('BIC Scores for Gaussian Mixture Model')
 
-    best_score = -1
-    best_eps = None
-    best_min_samples = None
+# # # Dataframe with Outliers
+# # st.subheader("Dataframe with Outliers")
+# # bic_scores_1 = calculate_bic(minmax_data_scaled_1)
+# # fig1, ax1 = plt.subplots()
+# # ax1.plot(range(2, 11), bic_scores_1, marker='o')
+# # ax1.set_xlabel('Number of components')
+# # ax1.set_ylabel('BIC Score')
+# # ax1.set_title('BIC Scores (Dataframe with Outliers)')
+# # ax1.grid(True)
+# # st.pyplot(fig1)
 
-    for eps in eps_values:
-        for min_samples in min_samples_values:
-            dbscan = DBSCAN(eps=eps, min_samples=min_samples)
-            cluster_labels = dbscan.fit_predict(data_scaled)
-            silhouette_avg = silhouette_score(data_scaled, cluster_labels)
-            print(f"For eps={eps}, min_samples={min_samples}, silhouette score: {silhouette_avg}")
+# # # Dataframe without Outliers
+# # st.subheader("Dataframe without Outliers")
+# # bic_scores_2 = calculate_bic(minmax_data_scaled_2)
+# # fig2, ax2 = plt.subplots()
+# # ax2.plot(range(2, 11), bic_scores_2, marker='o')
+# # ax2.set_xlabel('Number of components')
+# # ax2.set_ylabel('BIC Score')
+# # ax2.set_title('BIC Scores (Dataframe without Outliers)')
+# # ax2.grid(True)
+# # st.pyplot(fig2)
 
-            if silhouette_avg >= best_score:
-                best_score = silhouette_avg
-                best_eps = eps
-                best_min_samples = min_samples
+# # Perform Gaussian Mixture Model clustering
+# def gmm_clustering(data, title):
+#     gmm = GaussianMixture(n_components=2, random_state=42)
+#     labels = gmm.fit_predict(data)
 
-    print(f"\nBest parameters: eps={best_eps}, min_samples={best_min_samples}, silhouette score: {best_score}")
+#     pca = PCA(n_components=2)
+#     pca_result = pca.fit_transform(data)
 
-    return best_eps, best_min_samples, best_score
+#     fig, ax = plt.subplots(figsize=(10, 6))
+#     for cluster_num in range(2):
+#         subset = pca_result[labels == cluster_num]
+#         ax.scatter(subset[:, 0], subset[:, 1], label=f"Cluster {cluster_num}", alpha=0.6)
 
-# Function to perform DBSCAN clustering and visualization
-def visualize_dbscan_clusters(data_scaled, df_clusters, num_clusters, title):
-    eps, min_samples, silhouette_score = grid_search_dbscan(data_scaled)
+#     ax.set_title(title)
+#     ax.set_xlabel('PCA 1')
+#     ax.set_ylabel('PCA 2')
+#     ax.legend()
+#     ax.grid(True)
+#     st.pyplot(fig)
 
-    dbscan = DBSCAN(eps=eps, min_samples=min_samples)
-    df_clusters['DBSCAN_Cluster'] = dbscan.fit_predict(data_scaled)
+# # Gaussian Mixture Model Clustering with Visualization for both datasets
+# st.title("   ")
+# st.header('GMM Clustering')
 
-    pca = PCA(n_components=2)
-    data_pca = pca.fit_transform(data_scaled)
+# # Dataframe with Outliers
+# st.subheader("Dataframe with Outliers")
+# gmm_clustering(minmax_data_scaled_1, "Gaussian Mixture Model Clustering with 2 Components (PCA visualization) - Dataframe with Outliers")
 
-    fig, ax = plt.subplots(figsize=(10, 6))
-    for cluster_num in set(df_clusters['DBSCAN_Cluster']):
-        if cluster_num == -1:
-            subset = data_pca[df_clusters['DBSCAN_Cluster'] == cluster_num]
-            ax.scatter(subset[:, 0], subset[:, 1], label=f"Outliers", alpha=0.6, color='black')
-        else:
-            subset = data_pca[df_clusters['DBSCAN_Cluster'] == cluster_num]
-            ax.scatter(subset[:, 0], subset[:, 1], label=f"Cluster {cluster_num}", alpha=0.6)
+# # Dataframe without Outliers
+# st.subheader("Dataframe without Outliers")
+# gmm_clustering(minmax_data_scaled_2, "Gaussian Mixture Model Clustering with 2 Components (PCA visualization) - Dataframe without Outliers")
 
-    ax.set_title(title)
-    ax.set_xlabel('PCA 1')
-    ax.set_ylabel('PCA 2')
-    ax.legend()
-    ax.grid(True)
-    plt.tight_layout()
-    st.pyplot(fig)
+# # Calculate silhouette scores for Gaussian Mixture Model clustering
+# gmm1 = GaussianMixture(n_components=2, random_state=42)
+# labels_1 = gmm1.fit_predict(minmax_data_scaled_1)
+# gmm1_silhouette = silhouette_score(minmax_data_scaled_1, labels_1, metric='euclidean')
 
-    return silhouette_score
+# gmm2 = GaussianMixture(n_components=2, random_state=42)
+# labels_2 = gmm2.fit_predict(minmax_data_scaled_2)
+# gmm2_silhouette = silhouette_score(minmax_data_scaled_2, labels_2, metric='euclidean')
 
-# Streamlit app
-st.title("   ")
-st.header("DBSCAN Clustering Visualization")
+# # Display silhouette scores
+# st.title("   ")
+# st.header('Silhouette Scores')
+# st.write("Gaussian Mixture Model 1 (Dataframe with Outliers):", gmm1_silhouette)
+# st.write("Gaussian Mixture Model 2 (Dataframe without Outliers):", gmm2_silhouette)
 
-# With outliers
-st.subheader('With Outliers')
-dbscan1_silhouette = visualize_dbscan_clusters(minmax_data_scaled_1, df_outliers.copy(), num_clusters=2, title='DBSCAN Clustering (PCA Visualization & Dataframe with Outliers)')
+# #------------------------------------------------------------------------------------#
 
-# Without outliers
-st.subheader('Without Outliers')
-dbscan2_silhouette = visualize_dbscan_clusters(minmax_data_scaled_2, df_no_outliers.copy(), num_clusters=2, title='DBSCAN Clustering (PCA Visualization & Dataframe without Outliers)')
+# # DBSCAN
 
-# Print silhouette scores
-st.title("   ")
-st.header('Silhouette Scores')
-st.write("DBSCAN Silhouette Score (With Outliers):", dbscan1_silhouette)
-st.write("DBSCAN Silhouette Score (Without Outliers):", dbscan2_silhouette)
+# st.title("   ")
+# st.title("   ")
+# st.title("DBSCAN")
 
-#------------------------------------------------------------------------------------#
+# import streamlit as st
+# import pandas as pd
+# import matplotlib.pyplot as plt
+# from sklearn.preprocessing import MinMaxScaler
+# from sklearn.cluster import DBSCAN
+# from sklearn.metrics import silhouette_score
+# from sklearn.decomposition import PCA
 
-# Model Performance Comparision
+# # Load data
+# df_outliers = pd.read_csv("earthquake_data_outliers.csv")
+# df_no_outliers = pd.read_csv("earthquake_data_no_outliers.csv")
 
-st.title("  ")
-st.title("  ")
-st.title('Model Performance Compare')
+# # Select features for clustering
+# clustering_data_1 = df_outliers[["magnitude", "cdi", "mmi", "tsunami", "sig", "dmin", "gap", "depth"]]
+# clustering_data_2 = df_no_outliers[["magnitude", "cdi", "mmi", "tsunami", "sig", "dmin", "gap", "depth"]]
 
-import streamlit as st
-import matplotlib.pyplot as plt
+# # Scale the data
+# scaler = MinMaxScaler()
+# minmax_data_scaled_1 = scaler.fit_transform(clustering_data_1)
+# minmax_data_scaled_2 = scaler.fit_transform(clustering_data_2)
 
-# Assuming you have these scores stored in variables
-scores = {
-    'KMeans1': kmeans1_silhouette,
-    'KMeans2': kmeans2_silhouette,
-    'GMM1': gmm1_silhouette,
-    'GMM2': gmm2_silhouette,
-    'DBSCAN1': dbscan1_silhouette,
-    'DBSCAN2': dbscan2_silhouette,
-    'KMedoidsMin1': kmedoidsmin1_silhouette,
-    'KMedoidsMin2': kmedoidsmin2_silhouette
-}
+# # Function to perform grid search for DBSCAN parameters
+# def grid_search_dbscan(data_scaled):
+#     eps_values = [0.1, 0.3, 0.5, 0.7, 0.9]
+#     min_samples_values = [5, 10, 15, 20]
 
-# Extracting names and scores
-names = list(scores.keys())
-values = list(scores.values())
+#     best_score = -1
+#     best_eps = None
+#     best_min_samples = None
 
-# Define custom colors for each algorithm
-custom_colors = {
-    'KMeans1': 'indianred',
-    'KMeans2': 'pink',
-    'GMM1': 'dodgerblue',
-    'GMM2': 'skyblue',
-    'DBSCAN1': 'navajowhite',
-    'DBSCAN2': 'antiquewhite',
-    'KMedoidsMin1': 'mediumseagreen',
-    'KMedoidsMin2': 'lightgreen'
-}
+#     for eps in eps_values:
+#         for min_samples in min_samples_values:
+#             dbscan = DBSCAN(eps=eps, min_samples=min_samples)
+#             cluster_labels = dbscan.fit_predict(data_scaled)
+#             silhouette_avg = silhouette_score(data_scaled, cluster_labels)
+#             print(f"For eps={eps}, min_samples={min_samples}, silhouette score: {silhouette_avg}")
 
-# Plotting with custom colors
-fig, ax = plt.subplots(figsize=(9, 6))
-bars = ax.bar(names, values, color=[custom_colors[name] for name in names])
-ax.set_xlabel('Clustering Algorithms')
-ax.set_ylabel('Silhouette Score')
-ax.set_title('Silhouette Scores of Different Clustering Algorithms')
-ax.set_xticklabels(names, rotation=45, ha='right')
+#             if silhouette_avg >= best_score:
+#                 best_score = silhouette_avg
+#                 best_eps = eps
+#                 best_min_samples = min_samples
 
-# Displaying the plot in Streamlit
-st.pyplot(fig)
+#     print(f"\nBest parameters: eps={best_eps}, min_samples={best_min_samples}, silhouette score: {best_score}")
+
+#     return best_eps, best_min_samples, best_score
+
+# # Function to perform DBSCAN clustering and visualization
+# def visualize_dbscan_clusters(data_scaled, df_clusters, num_clusters, title):
+#     eps, min_samples, silhouette_score = grid_search_dbscan(data_scaled)
+
+#     dbscan = DBSCAN(eps=eps, min_samples=min_samples)
+#     df_clusters['DBSCAN_Cluster'] = dbscan.fit_predict(data_scaled)
+
+#     pca = PCA(n_components=2)
+#     data_pca = pca.fit_transform(data_scaled)
+
+#     fig, ax = plt.subplots(figsize=(10, 6))
+#     for cluster_num in set(df_clusters['DBSCAN_Cluster']):
+#         if cluster_num == -1:
+#             subset = data_pca[df_clusters['DBSCAN_Cluster'] == cluster_num]
+#             ax.scatter(subset[:, 0], subset[:, 1], label=f"Outliers", alpha=0.6, color='black')
+#         else:
+#             subset = data_pca[df_clusters['DBSCAN_Cluster'] == cluster_num]
+#             ax.scatter(subset[:, 0], subset[:, 1], label=f"Cluster {cluster_num}", alpha=0.6)
+
+#     ax.set_title(title)
+#     ax.set_xlabel('PCA 1')
+#     ax.set_ylabel('PCA 2')
+#     ax.legend()
+#     ax.grid(True)
+#     plt.tight_layout()
+#     st.pyplot(fig)
+
+#     return silhouette_score
+
+# # Streamlit app
+# st.title("   ")
+# st.header("DBSCAN Clustering Visualization")
+
+# # With outliers
+# st.subheader('With Outliers')
+# dbscan1_silhouette = visualize_dbscan_clusters(minmax_data_scaled_1, df_outliers.copy(), num_clusters=2, title='DBSCAN Clustering (PCA Visualization & Dataframe with Outliers)')
+
+# # Without outliers
+# st.subheader('Without Outliers')
+# dbscan2_silhouette = visualize_dbscan_clusters(minmax_data_scaled_2, df_no_outliers.copy(), num_clusters=2, title='DBSCAN Clustering (PCA Visualization & Dataframe without Outliers)')
+
+# # Print silhouette scores
+# st.title("   ")
+# st.header('Silhouette Scores')
+# st.write("DBSCAN Silhouette Score (With Outliers):", dbscan1_silhouette)
+# st.write("DBSCAN Silhouette Score (Without Outliers):", dbscan2_silhouette)
+
+# #------------------------------------------------------------------------------------#
+
+# # Model Performance Comparision
+
+# st.title("  ")
+# st.title("  ")
+# st.title('Model Performance Compare')
+
+# import streamlit as st
+# import matplotlib.pyplot as plt
+
+# # Assuming you have these scores stored in variables
+# scores = {
+#     'KMeans1': kmeans1_silhouette,
+#     'KMeans2': kmeans2_silhouette,
+#     'GMM1': gmm1_silhouette,
+#     'GMM2': gmm2_silhouette,
+#     'DBSCAN1': dbscan1_silhouette,
+#     'DBSCAN2': dbscan2_silhouette,
+#     'KMedoidsMin1': kmedoidsmin1_silhouette,
+#     'KMedoidsMin2': kmedoidsmin2_silhouette
+# }
+
+# # Extracting names and scores
+# names = list(scores.keys())
+# values = list(scores.values())
+
+# # Define custom colors for each algorithm
+# custom_colors = {
+#     'KMeans1': 'indianred',
+#     'KMeans2': 'pink',
+#     'GMM1': 'dodgerblue',
+#     'GMM2': 'skyblue',
+#     'DBSCAN1': 'navajowhite',
+#     'DBSCAN2': 'antiquewhite',
+#     'KMedoidsMin1': 'mediumseagreen',
+#     'KMedoidsMin2': 'lightgreen'
+# }
+
+# # Plotting with custom colors
+# fig, ax = plt.subplots(figsize=(9, 6))
+# bars = ax.bar(names, values, color=[custom_colors[name] for name in names])
+# ax.set_xlabel('Clustering Algorithms')
+# ax.set_ylabel('Silhouette Score')
+# ax.set_title('Silhouette Scores of Different Clustering Algorithms')
+# ax.set_xticklabels(names, rotation=45, ha='right')
+
+# # Displaying the plot in Streamlit
+# st.pyplot(fig)
 
 #------------------------------------------------------------------------------------#
 
