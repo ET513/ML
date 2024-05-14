@@ -608,7 +608,7 @@ st.title('  ')
 # st.sidebar.header('Input Data')
 
 # User Input for prediction
-magnitude = st.sidebar.text_input('Earthquake magnitude', value='')
+magnitude = st.sidebar.text_input('Earthquake magnitude 1', value='')
 cdi = st.sidebar.text_input('Community Decimal Intensities', value='')
 mmi = st.sidebar.text_input('Modified Mercalli Intensity', value='')
 tsunami = st.sidebar.selectbox('Tsunami(0 = False, 1 = True)', [0, 1])
