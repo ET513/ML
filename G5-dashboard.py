@@ -617,16 +617,54 @@ dmin = st.sidebar.text_input('Minimum Distance to Station (1.0 to 20.0) ', value
 gap = st.sidebar.text_input('Azimuthal gap (1 to 250)', value='')
 depth = st.sidebar.text_input('Depth of Rupture (1 to 1000)', value='')
 
-if st.sidebar.button('Predict'):
+def validate_input(value, min_value, max_value):
     try:
-        magnitude = float(magnitude)
-        cdi = float(cdi)
-        mmi = float(mmi)
-        sig = float(sig)
-        dmin = float(dmin)
-        gap = float(gap)
-        depth = float(depth)
+        value = float(value)
+        if value < min_value or value > max_value:
+            return False, f"Value should be between {min_value} and {max_value}."
+        return True, value
+    except ValueError:
+        return False, "Invalid input. Please enter a numeric value."
 
+if st.sidebar.button('Predict'):
+    valid = True
+    
+    magnitude_valid, magnitude = validate_input(magnitude, 1.0, 10.0)
+    if not magnitude_valid:
+        st.sidebar.error(f"Magnitude: {magnitude}")
+        valid = False
+
+    cdi_valid, cdi = validate_input(cdi, 0, 9)
+    if not cdi_valid:
+        st.sidebar.error(f"Community Decimal Intensities: {cdi}")
+        valid = False
+
+    mmi_valid, mmi = validate_input(mmi, 0, 9)
+    if not mmi_valid:
+        st.sidebar.error(f"Modified Mercalli Intensity: {mmi}")
+        valid = False
+
+    sig_valid, sig = validate_input(sig, 100, 3000)
+    if not sig_valid:
+        st.sidebar.error(f"Significant Event ID: {sig}")
+        valid = False
+
+    dmin_valid, dmin = validate_input(dmin, 1.0, 20.0)
+    if not dmin_valid:
+        st.sidebar.error(f"Minimum Distance to Station: {dmin}")
+        valid = False
+
+    gap_valid, gap = validate_input(gap, 1, 250)
+    if not gap_valid:
+        st.sidebar.error(f"Azimuthal gap: {gap}")
+        valid = False
+
+    depth_valid, depth = validate_input(depth, 1, 1000)
+    if not depth_valid:
+        st.sidebar.error(f"Depth of Rupture: {depth}")
+        valid = False
+
+    if valid:
         input_data = np.array([[magnitude, cdi, mmi, tsunami, sig, dmin, gap, depth]])
         input_data_scaled = minmax_scaler.transform(input_data)
         predicted_cluster = kmeans1.predict(input_data_scaled)[0]
@@ -635,8 +673,6 @@ if st.sidebar.button('Predict'):
         st.sidebar.write('\n')
         st.sidebar.header(f"Predicted Cluster:")
         st.sidebar.write(f"{predicted_cluster_name}")
-    
-    except ValueError:
-        st.sidebar.write("Please enter valid numeric values.")
+
 
 #------------------------------------------------------------------------------------#
